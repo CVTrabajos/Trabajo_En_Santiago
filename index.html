@@ -18,6 +18,15 @@ header p{color:#94A3B8;font-size:.95rem}
 .container{max-width:780px;margin:-18px auto 0;padding:0 16px}
 .search-box{background:var(--card);padding:12px 16px;border-radius:14px;box-shadow:0 4px 14px rgba(0,0,0,.08);display:flex;align-items:center;gap:10px;border:1px solid var(--border)}
 .search-box input{width:100%;border:none;outline:none;font-size:1rem;color:var(--text);background:transparent}
+.geo-filters-container{display:flex;gap:10px;margin-top:12px;align-items:stretch}
+.geo-box{flex:1;background:var(--card);border:1px solid var(--border);border-radius:14px;padding:8px 14px;display:flex;align-items:center;gap:10px;box-shadow:0 2px 8px rgba(0,0,0,.04)}
+.geo-icon{flex-shrink:0;stroke:var(--text)}
+.geo-content{display:flex;flex-direction:column;width:100%;min-width:0}
+.geo-content label{font-size:.72rem;font-weight:700;color:var(--muted);letter-spacing:.3px;line-height:1.1}
+.geo-content select{border:none;outline:none;background:transparent;font-size:.88rem;font-weight:600;color:var(--text);cursor:pointer;width:100%;margin-top:2px;text-overflow:ellipsis}
+.filter-apply-btn{background:var(--primary);color:#fff;border:none;border-radius:14px;padding:0 20px;font-size:.82rem;font-weight:700;display:flex;align-items:center;justify-content:center;gap:8px;cursor:pointer;white-space:nowrap;box-shadow:0 4px 10px rgba(21,101,216,.25)}
+.filter-apply-btn:hover{background:#1E40AF}
+@media(max-width:680px){.geo-filters-container{flex-direction:column}.filter-apply-btn{padding:12px}}
 .filters-wrapper{display:flex;align-items:center;gap:6px;margin:12px 0 8px}
 .filters-scroll{display:flex;gap:8px;overflow-x:auto;padding:6px 0;scrollbar-width:none;scroll-behavior:smooth;flex:1}
 .filters-scroll::-webkit-scrollbar{display:none}
@@ -59,6 +68,35 @@ footer{max-width:680px;margin:40px auto 0;text-align:center;padding:0 20px;font-
     <input type="text" id="searchInput" placeholder="Buscar por cargo, empresa o palabra clave...">
   </div>
 
+  <div class="geo-filters-container">
+    <div class="geo-box">
+      <svg class="geo-icon" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>
+      <div class="geo-content">
+        <label for="provinciaSelect">Provincia</label>
+        <select id="provinciaSelect">
+          <option value="all">Selecciona una provincia</option>
+          <option value="Santiago">Santiago (32 comunas)</option>
+          <option value="Cordillera">Cordillera (3 comunas)</option>
+          <option value="Chacabuco">Chacabuco (3 comunas)</option>
+          <option value="Maipo">Maipo (4 comunas)</option>
+          <option value="Melipilla">Melipilla (5 comunas)</option>
+          <option value="Talagante">Talagante (5 comunas)</option>
+        </select>
+      </div>
+    </div>
+    <div class="geo-box">
+      <svg class="geo-icon" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="2" width="16" height="20" rx="2" ry="2"></rect><path d="M9 22v-4h6v4"></path><path d="M8 6h.01"></path><path d="M16 6h.01"></path><path d="M12 6h.01"></path><path d="M12 10h.01"></path><path d="M12 14h.01"></path><path d="M16 10h.01"></path><path d="M16 14h.01"></path><path d="M8 10h.01"></path><path d="M8 14h.01"></path></svg>
+      <div class="geo-content">
+        <label for="comunaSelect">Comuna</label>
+        <select id="comunaSelect"><option value="all">Selecciona una comuna</option></select>
+      </div>
+    </div>
+    <button class="filter-apply-btn" id="filterBtn">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"></polygon></svg>
+      FILTRAR POR COMUNA
+    </button>
+  </div>
+
   <div class="filters-wrapper">
     <button class="scroll-arrow" id="scrollLeft" aria-label="Izquierda">‹</button>
     <div class="filters-scroll" id="filtersScroll">
@@ -95,18 +133,55 @@ footer{max-width:680px;margin:40px auto 0;text-align:center;padding:0 20px;font-
 const CACHE_KEY = 'ofertas_santiago_v1';
 const CAT_COLORS = {comercial:'#FF8A00',ventas:'#FF8A00',retail:'#FF8A00',tecnico:'#00CED1',técnico:'#00CED1',mantenimiento:'#00CED1',mantencion:'#00CED1',logistica:'#D4AC0D',logística:'#D4AC0D',bodega:'#D4AC0D',administrativo:'#1565D8',oficina:'#1565D8',rrhh:'#1565D8',salud:'#2EAF62',tens:'#2EAF62',construccion:'#FF0000',construcción:'#FF0000',educacion:'#9C27B0',educación:'#9C27B0',gastronomia:'#795548',gastronomía:'#795548',cocina:'#795548',otros:'#999999'};
 
-let jobsData = [], activeCategory = 'all', searchQuery = '';
+let jobsData = [], activeCategory = 'all', searchQuery = '', selectedProvincia = 'all', selectedComuna = 'all';
+
+const PROVINCIAS_RM = {
+  "Santiago": ["Cerrillos","Cerro Navia","Conchalí","El Bosque","Estación Central","Huechuraba","Independencia","La Cisterna","La Florida","La Granja","La Pintana","La Reina","Las Condes","Lo Barnechea","Lo Espejo","Lo Prado","Macul","Maipú","Ñuñoa","Pedro Aguirre Cerda","Peñalolén","Providencia","Pudahuel","Quilicura","Quinta Normal","Recoleta","Renca","San Joaquín","San Miguel","San Ramón","Santiago","Vitacura"],
+  "Cordillera": ["Pirque","Puente Alto","San José de Maipo"],
+  "Chacabuco": ["Colina","Lampa","Tiltil"],
+  "Maipo": ["Buin","Calera de Tango","Paine","San Bernardo"],
+  "Melipilla": ["Alhué","Curacaví","María Pinto","Melipilla","San Pedro"],
+  "Talagante": ["El Monte","Isla de Maipo","Padre Hurtado","Peñaflor","Talagante"]
+};
+
+function normalizeStr(str){
+  return String(str || '').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').trim();
+}
+
+function matchComuna(comuna, txt){
+  const t = normalizeStr(comuna);
+  if (txt.includes(t)) return true;
+  if (t === 'santiago' && txt.includes('santiago centro')) return true;
+  if (t === 'colina' && txt.includes('chicureo')) return true;
+  if (t === 'tiltil' && txt.includes('til til')) return true;
+  return false;
+}
+
+function populateComunas(prov){
+  const sel = document.getElementById('comunaSelect');
+  sel.innerHTML = '<option value="all">Selecciona una comuna</option>';
+  let list = [];
+  if (prov === 'all') { Object.values(PROVINCIAS_RM).forEach(a => list = list.concat(a)); list = [...new Set(list)]; }
+  else if (PROVINCIAS_RM[prov]) list = [...PROVINCIAS_RM[prov]];
+  list.sort((a, b) => a.localeCompare(b, 'es')).forEach(c => {
+    const o = document.createElement('option'); o.value = c; o.textContent = c; sel.appendChild(o);
+  });
+}
 const $ = id => document.getElementById(id);
 
 function esc(s){return String(s == null ? '' : s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
 function colorOf(cat){const l = String(cat || '').toLowerCase(); for (const [k,v] of Object.entries(CAT_COLORS)) if (l.includes(k)) return v; return '#999999';}
 
 function renderJobs(){
-  const q = searchQuery, cat = activeCategory.toLowerCase();
+  const q = normalizeStr(searchQuery), cat = normalizeStr(activeCategory);
   const list = jobsData.filter(j => {
-    const catTxt = String(j.cat || '').toLowerCase();
-    const txt = `${j.cargo || ''} ${j.empresa || ''} ${catTxt}`.toLowerCase();
-    return txt.includes(q) && (cat === 'all' || catTxt.includes(cat));
+    const catTxt = normalizeStr(j.cat);
+    const txt = normalizeStr(`${j.cargo || ''} ${j.empresa || ''} ${j.cat || ''}`);
+    if (!txt.includes(q)) return false;
+    if (cat !== 'all' && !catTxt.includes(cat)) return false;
+    if (selectedComuna !== 'all') return matchComuna(selectedComuna, txt);
+    if (selectedProvincia !== 'all') return (PROVINCIAS_RM[selectedProvincia] || []).some(c => matchComuna(c, txt));
+    return true;
   });
   $('jobCount').textContent = `${list.length} vacante${list.length === 1 ? '' : 's'} disponible${list.length === 1 ? '' : 's'}`;
   if (!list.length){ $('jobList').innerHTML = ''; $('noResults').style.display = 'block'; return; }
@@ -127,10 +202,15 @@ document.querySelectorAll('.filter-btn').forEach(b => b.addEventListener('click'
   document.querySelectorAll('.filter-btn').forEach(x => x.classList.remove('active'));
   b.classList.add('active'); activeCategory = b.dataset.cat; renderJobs();
 }));
+$('provinciaSelect').addEventListener('change', e => { selectedProvincia = e.target.value; selectedComuna = 'all'; populateComunas(selectedProvincia); renderJobs(); });
+$('comunaSelect').addEventListener('change', e => { selectedComuna = e.target.value; renderJobs(); });
+$('filterBtn').addEventListener('click', renderJobs);
 const sc = $('filtersScroll');
 $('scrollLeft').onclick = () => sc.scrollBy({left:-220,behavior:'smooth'});
 $('scrollRight').onclick = () => sc.scrollBy({left:220,behavior:'smooth'});
 sc.addEventListener('wheel', e => { if (e.deltaY){ e.preventDefault(); sc.scrollLeft += e.deltaY; } }, {passive:false});
+
+populateComunas('all');
 
 // 1) Mostrar al instante lo último guardado en el navegador
 try {
