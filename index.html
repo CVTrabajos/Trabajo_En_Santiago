@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Trabajo en Santiago | Ofertas Laborales Actualizadas</title>
-<meta name="description" content="Portal de ofertas de empleo y vacantes laborales por comuna en Santiago y la Región Metropolitana.">
+<meta name="description" content="Portal de ofertas de empleo y vacantes laborales por comuna y provincia en Santiago y la Región Metropolitana.">
 <style>
 :root{--primary:#1565D8;--bg:#F4F6F9;--card:#fff;--text:#1E293B;--muted:#64748B;--border:#E2E8F0}
 *{box-sizing:border-box;margin:0;padding:0;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif}
@@ -20,7 +20,20 @@ header p{color:#94A3B8;font-size:.92rem}
 .container{max-width:780px;margin:-18px auto 0;padding:0 16px}
 .search-box{background:var(--card);padding:12px 16px;border-radius:14px;box-shadow:0 4px 14px rgba(0,0,0,.08);display:flex;align-items:center;gap:10px;border:1px solid var(--border)}
 .search-box input{width:100%;border:none;outline:none;font-size:1rem;color:var(--text);background:transparent}
-.filters-wrapper{display:flex;align-items:center;gap:6px;margin:12px 0 8px}
+
+/* FILTROS DE UBICACIÓN (PROVINCIA Y COMUNA) */
+.location-filter-box{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:14px 16px;margin:14px 0 6px;box-shadow:0 2px 8px rgba(0,0,0,.04)}
+.location-title{font-size:.92rem;font-weight:700;color:#0F172A;display:flex;align-items:center;gap:6px;margin-bottom:10px}
+.location-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.select-group{display:flex;flex-direction:column;gap:4px}
+.select-group label{font-size:.78rem;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.4px}
+.select-group select{width:100%;padding:10px 12px;border:1px solid var(--border);border-radius:10px;background:#fff;color:var(--text);font-size:.9rem;outline:none;cursor:pointer;font-weight:500;transition:border-color .15s}
+.select-group select:focus{border-color:var(--primary)}
+
+/* FILTROS DE CATEGORÍA */
+.sec-title{font-size:1.05rem;font-weight:700;margin:18px 4px 0}
+.sec-sub{font-size:.85rem;color:var(--muted);margin:2px 4px 0}
+.filters-wrapper{display:flex;align-items:center;gap:6px;margin:10px 0 8px}
 .filters-scroll{display:flex;gap:8px;overflow-x:auto;padding:6px 0;scrollbar-width:none;scroll-behavior:smooth;flex:1}
 .filters-scroll::-webkit-scrollbar{display:none}
 .scroll-arrow{background:#fff;border:1px solid var(--border);color:var(--muted);width:34px;height:34px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:1.25rem;cursor:pointer;flex-shrink:0;user-select:none}
@@ -44,6 +57,9 @@ header p{color:#94A3B8;font-size:.92rem}
 @keyframes sh{to{background-position:-200% 0}}
 footer{max-width:680px;margin:40px auto 0;text-align:center;padding:0 20px;font-size:.8rem;color:var(--muted)}
 .disclaimer{background:#FEF3C7;border:1px solid #FDE68A;color:#92400E;padding:12px 16px;border-radius:10px;margin-bottom:16px;line-height:1.4;font-size:.82rem;text-align:left}
+@media (max-width: 540px) {
+  .location-grid{grid-template-columns:1fr}
+}
 </style>
 </head>
 <body>
@@ -65,8 +81,36 @@ footer{max-width:680px;margin:40px auto 0;text-align:center;padding:0 20px;font-
 <main class="container">
   <div class="search-box">
     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#94A3B8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
-    <input type="text" id="searchInput" placeholder="Buscar por cargo, empresa, comuna o sueldo...">
+    <input type="text" id="searchInput" placeholder="Buscar por cargo, empresa o palabra clave...">
   </div>
+
+  <!-- FILTROS POR PROVINCIA Y COMUNA -->
+  <div class="location-filter-box">
+    <div class="location-title">📍 Filtrar por ubicación:</div>
+    <div class="location-grid">
+      <div class="select-group">
+        <label for="provinciaSelect">Provincia</label>
+        <select id="provinciaSelect">
+          <option value="all">Todas las provincias</option>
+          <option value="Santiago">Santiago</option>
+          <option value="Chacabuco">Chacabuco</option>
+          <option value="Cordillera">Cordillera</option>
+          <option value="Maipo">Maipo</option>
+          <option value="Melipilla">Melipilla</option>
+          <option value="Talagante">Talagante</option>
+        </select>
+      </div>
+      <div class="select-group">
+        <label for="comunaSelect">Comuna</label>
+        <select id="comunaSelect">
+          <option value="all">Todas las comunas</option>
+        </select>
+      </div>
+    </div>
+  </div>
+
+  <div class="sec-title">Categorías de empleo</div>
+  <div class="sec-sub">Filtra las ofertas según tu rubro o área laboral</div>
 
   <div class="filters-wrapper">
     <button class="scroll-arrow" id="scrollLeft" aria-label="Izquierda">‹</button>
@@ -87,7 +131,7 @@ footer{max-width:680px;margin:40px auto 0;text-align:center;padding:0 20px;font-
 
   <div class="stats-bar">
     <span id="jobCount">Cargando vacantes...</span>
-    <span>📍 Región Metropolitana</span>
+    <span>Región Metropolitana</span>
   </div>
 
   <div class="job-list" id="jobList">
@@ -110,19 +154,26 @@ footer{max-width:680px;margin:40px auto 0;text-align:center;padding:0 20px;font-
 <script>
 const CIUDAD_NOMBRE = "Santiago";
 const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwI86L8yxSr3gWn7ycNePNroIRG55_MYnEEQ8Kp-4c03lSNO8b0rGZADiiTwcuB2O3NRQ/exec";
-const CACHE_KEY = "ofertas_santiago_v15";
+const CACHE_KEY = "ofertas_santiago_v20";
 const INSTAGRAM_USER = "@trabajo_en_santiago";
 
-const COMUNAS_RM = [
-  "Cerrillos","Cerro Navia","Conchalí","El Bosque","Estación Central","Huechuraba",
-  "Independencia","La Cisterna","La Florida","La Granja","La Pintana","La Reina",
-  "Las Condes","Lo Barnechea","Lo Espejo","Lo Prado","Macul","Maipú","Ñuñoa",
-  "Pedro Aguirre Cerda","Peñalolén","Providencia","Pudahuel","Quilicura","Quinta Normal",
-  "Recoleta","Renca","San Joaquín","San Miguel","San Ramón","Santiago Centro",
-  "Vitacura","Puente Alto","Pirque","San José de Maipo","Colina","Lampa","Til Til",
-  "San Bernardo","Buin","Calera de Tango","Paine","Melipilla","Alhué","Curacaví",
-  "María Pinto","San Pedro","Talagante","El Monte","Isla de Maipo","Padre Hurtado","Peñaflor"
-];
+const PROVINCIAS_RM = {
+  "Santiago": [
+    "Santiago Centro", "Cerrillos", "Cerro Navia", "Conchalí", "El Bosque", 
+    "Estación Central", "Huechuraba", "Independencia", "La Cisterna", "La Florida", 
+    "La Granja", "La Pintana", "La Reina", "Las Condes", "Lo Barnechea", 
+    "Lo Espejo", "Lo Prado", "Macul", "Maipú", "Ñuñoa", "Pedro Aguirre Cerda", 
+    "Peñalolén", "Providencia", "Pudahuel", "Quilicura", "Quinta Normal", 
+    "Recoleta", "Renca", "San Joaquín", "San Miguel", "San Ramón", "Vitacura"
+  ],
+  "Chacabuco": ["Colina", "Lampa", "Til Til"],
+  "Cordillera": ["Puente Alto", "Pirque", "San José de Maipo"],
+  "Maipo": ["San Bernardo", "Buin", "Calera de Tango", "Paine"],
+  "Melipilla": ["Melipilla", "Alhué", "Curacaví", "María Pinto", "San Pedro"],
+  "Talagante": ["Talagante", "El Monte", "Isla de Maipo", "Padre Hurtado", "Peñaflor"]
+};
+
+const TODAS_COMUNAS = Object.values(PROVINCIAS_RM).flat().sort((a,b) => a.localeCompare(b));
 
 const CAT_COLORS = {
   comercial: '#FF8A00', ventas: '#FF8A00', retail: '#FF8A00',
@@ -136,7 +187,12 @@ const CAT_COLORS = {
   otros: '#999999'
 };
 
-let jobsData = [], activeCategory = 'all', searchQuery = '';
+let jobsData = [];
+let activeCategory = 'all';
+let searchQuery = '';
+let activeProvincia = 'all';
+let activeComuna = 'all';
+
 const $ = id => document.getElementById(id);
 
 function esc(s){
@@ -161,13 +217,23 @@ function stripAccents(s) {
 function detectarComuna(texto, url) {
   const t = stripAccents(String(texto || '') + ' ' + String(url || ''));
   let mejorMatch = '';
-  for (const com of COMUNAS_RM) {
+  for (const com of TODAS_COMUNAS) {
     const cNorm = stripAccents(com);
     if (t.includes(cNorm) && cNorm.length > stripAccents(mejorMatch).length) {
       mejorMatch = com;
     }
   }
   return mejorMatch;
+}
+
+function obtenerProvinciaDeComuna(comuna) {
+  const cNorm = stripAccents(comuna);
+  for (const [prov, lista] of Object.entries(PROVINCIAS_RM)) {
+    if (lista.some(c => stripAccents(c) === cNorm)) {
+      return prov;
+    }
+  }
+  return '';
 }
 
 function construirTituloRico(j) {
@@ -191,7 +257,7 @@ function construirTituloRico(j) {
   const comuna = detectarComuna(cargoOriginal, j.url) || 'Santiago Centro';
 
   let cargoBase = cargoOriginal.replace(/\(.*?\)/g, '').trim();
-  for (const c of COMUNAS_RM) {
+  for (const c of TODAS_COMUNAS) {
     const cNorm = stripAccents(c);
     const cargoNorm = stripAccents(cargoBase);
     if (cargoNorm.endsWith(cNorm)) {
@@ -203,15 +269,68 @@ function construirTituloRico(j) {
   return `${cargoBase}${sueldoStr} | ${empresa} | ${comuna}`;
 }
 
+function inicializarFiltrosUbicacion() {
+  const provSelect = $('provinciaSelect');
+  const comSelect = $('comunaSelect');
+
+  function poblarComunas(provinciaSeleccionada) {
+    comSelect.innerHTML = '<option value="all">Todas las comunas</option>';
+    let lista = (provinciaSeleccionada !== 'all' && PROVINCIAS_RM[provinciaSeleccionada])
+      ? PROVINCIAS_RM[provinciaSeleccionada]
+      : TODAS_COMUNAS;
+
+    lista.forEach(c => {
+      const opt = document.createElement('option');
+      opt.value = c;
+      opt.textContent = c;
+      comSelect.appendChild(opt);
+    });
+    comSelect.value = 'all';
+    activeComuna = 'all';
+  }
+
+  poblarComunas('all');
+
+  provSelect.addEventListener('change', e => {
+    activeProvincia = e.target.value;
+    poblarComunas(activeProvincia);
+    renderJobs();
+  });
+
+  comSelect.addEventListener('change', e => {
+    activeComuna = e.target.value;
+    renderJobs();
+  });
+}
+
 function renderJobs(){
   const q = stripAccents(searchQuery);
   const cat = stripAccents(activeCategory);
 
   const list = jobsData.filter(j => {
+    const tituloRico = construirTituloRico(j);
+    const comunaDetectada = detectarComuna(tituloRico, j.url) || 'Santiago Centro';
+    const provinciaDetectada = obtenerProvinciaDeComuna(comunaDetectada);
+
+    if (activeProvincia !== 'all' && stripAccents(provinciaDetectada) !== stripAccents(activeProvincia)) {
+      return false;
+    }
+
+    if (activeComuna !== 'all' && stripAccents(comunaDetectada) !== stripAccents(activeComuna)) {
+      return false;
+    }
+
     const catTxt = stripAccents(j.cat);
-    const tituloRico = stripAccents(construirTituloRico(j));
-    const txt = `${tituloRico} ${stripAccents(j.empresa)} ${catTxt}`;
-    return txt.includes(q) && (cat === 'all' || catTxt.includes(cat));
+    if (cat !== 'all' && !catTxt.includes(cat)) {
+      return false;
+    }
+
+    const txtCompleto = stripAccents(`${tituloRico} ${j.empresa || ''} ${comunaDetectada} ${provinciaDetectada} ${catTxt}`);
+    if (q && !txtCompleto.includes(q)) {
+      return false;
+    }
+
+    return true;
   });
 
   $('jobCount').textContent = `${list.length} vacante${list.length === 1 ? '' : 's'} disponible${list.length === 1 ? '' : 's'}`;
@@ -262,6 +381,8 @@ sc.addEventListener('wheel', e => {
     sc.scrollLeft += e.deltaY;
   }
 }, {passive: false});
+
+inicializarFiltrosUbicacion();
 
 try {
   const cached = JSON.parse(localStorage.getItem(CACHE_KEY) || 'null');
