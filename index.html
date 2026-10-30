@@ -25,7 +25,7 @@ header p{color:#94A3B8;font-size:.92rem}
 .filters-scroll::-webkit-scrollbar{display:none}
 .scroll-arrow{background:#fff;border:1px solid var(--border);color:var(--muted);width:34px;height:34px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:1.25rem;cursor:pointer;flex-shrink:0;user-select:none}
 .scroll-arrow:hover{background:var(--primary);color:#fff;border-color:var(--primary)}
-.filter-btn{background:#fff;border:1px solid var(--border);padding:8px 14px;border-radius:20px;font-size:.82rem;font-weight:600;color:var(--muted);white-space:nowrap;cursor:pointer;flex-shrink:0}
+.filter-btn{padding:8px 14px;border-radius:20px;font-size:.82rem;font-weight:600;color:var(--muted);white-space:nowrap;cursor:pointer;flex-shrink:0;background:#fff;border:1px solid var(--border)}
 .filter-btn.active{background:var(--primary);color:#fff;border-color:var(--primary)}
 .stats-bar{display:flex;justify-content:space-between;margin:10px 4px 16px;font-size:.85rem;color:var(--muted);font-weight:500}
 .job-list{display:flex;flex-direction:column;gap:12px}
@@ -110,7 +110,7 @@ footer{max-width:680px;margin:40px auto 0;text-align:center;padding:0 20px;font-
 <script>
 const CIUDAD_NOMBRE = "Santiago";
 const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwI86L8yxSr3gWn7ycNePNroIRG55_MYnEEQ8Kp-4c03lSNO8b0rGZADiiTwcuB2O3NRQ/exec";
-const CACHE_KEY = "ofertas_santiago_v10";
+const CACHE_KEY = "ofertas_santiago_v15";
 const INSTAGRAM_USER = "@trabajo_en_santiago";
 
 const COMUNAS_RM = [
@@ -151,12 +151,19 @@ function colorOf(cat){
   return '#999999';
 }
 
+function stripAccents(s) {
+  return String(s || '').toLowerCase()
+    .replace(/[-_]/g, ' ')
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '');
+}
+
 function detectarComuna(texto, url) {
-  const t = (String(texto || '') + ' ' + String(url || '')).toLowerCase().replace(/[-_]/g, ' ');
+  const t = stripAccents(String(texto || '') + ' ' + String(url || ''));
   let mejorMatch = '';
   for (const com of COMUNAS_RM) {
-    const cNorm = com.toLowerCase();
-    if (t.includes(cNorm) && cNorm.length > mejorMatch.length) {
+    const cNorm = stripAccents(com);
+    if (t.includes(cNorm) && cNorm.length > stripAccents(mejorMatch).length) {
       mejorMatch = com;
     }
   }
@@ -181,11 +188,13 @@ function construirTituloRico(j) {
     }
   }
 
-  const comuna = detectarComuna(cargoOriginal, j.url) || 'Región Metropolitana';
+  const comuna = detectarComuna(cargoOriginal, j.url) || 'Santiago Centro';
 
   let cargoBase = cargoOriginal.replace(/\(.*?\)/g, '').trim();
   for (const c of COMUNAS_RM) {
-    if (cargoBase.toLowerCase().endsWith(c.toLowerCase())) {
+    const cNorm = stripAccents(c);
+    const cargoNorm = stripAccents(cargoBase);
+    if (cargoNorm.endsWith(cNorm)) {
       cargoBase = cargoBase.slice(0, -c.length).trim();
     }
   }
@@ -195,13 +204,13 @@ function construirTituloRico(j) {
 }
 
 function renderJobs(){
-  const q = searchQuery.toLowerCase().trim();
-  const cat = activeCategory.toLowerCase();
+  const q = stripAccents(searchQuery);
+  const cat = stripAccents(activeCategory);
 
   const list = jobsData.filter(j => {
-    const catTxt = String(j.cat || '').toLowerCase();
-    const tituloRico = construirTituloRico(j).toLowerCase();
-    const txt = `${tituloRico} ${j.empresa || ''} ${catTxt}`.toLowerCase();
+    const catTxt = stripAccents(j.cat);
+    const tituloRico = stripAccents(construirTituloRico(j));
+    const txt = `${tituloRico} ${stripAccents(j.empresa)} ${catTxt}`;
     return txt.includes(q) && (cat === 'all' || catTxt.includes(cat));
   });
 
